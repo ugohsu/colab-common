@@ -113,7 +113,7 @@ df = get_as_dataframe(worksheet, header=0)
 
 ```python
 ## 本リポジトリで定義するライブラリのインポート
-from colab_common import 
+from colab_common import get_gspread_client_colab()
 
 ## 認証手続き
 gc = get_gspread_client_colab()
