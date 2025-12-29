@@ -18,16 +18,18 @@
 
 まずは読み込みの対象としたい Google スプレッドシートの URL とシート名を調べます。以下のように変数に代入しておくとよいでしょう。
 
+
 ```python
-sheet_url = ""
-sheet_name = ""
+SHEET_URL = ""
+SHEET_NAME = ""
 ```
 
-- `sheet_url`  
+- `SHEET_URL`  
     - 読み込みたい Google スプレッドシートの URL を指定します。対象スプレッドシートには **「閲覧可」以上の権限**が必要です。
-
-- `sheet_name`  
+    - (例) `SHEET_URL = "https://docs.google.com/spreadsheets/d/..."` のように記述します。
+- `SHEET_NAME`  
     - スプレッドシート内の **ワークシート（タブ）の名前**を指定します。表示されているタブ名と完全一致している必要があります。
+    - (例) `SHEET_NAME = "シート1"` のように記述します。
 
 ---
 
@@ -58,7 +60,7 @@ from google.auth import default
 - `gspread_dataframe.get_as_dataframe`  
   ワークシートの内容を Pandas DataFrame に変換するために使用します
 
-※ Google Colab では、これらは **標準で利用可能**です（追加の pip install は不要）。
+※ Google Colab では、これらは **標準で利用可能**です (Google Colab の仕様変更などで必要が生じた場合は、別途 !pip install... してください)。
 
 ---
 
@@ -77,7 +79,7 @@ gc = gspread.authorize(creds)
 ### 5. スプレッドシート → DataFrame
 
 ```python
-worksheet = gc.open_by_url(sheet_url).worksheet(sheet_name)
+worksheet = gc.open_by_url(SHEET_URL).worksheet(SHEET_NAME)
 df = get_as_dataframe(worksheet, header=0)
 ```
 
@@ -102,18 +104,18 @@ df = get_as_dataframe(worksheet, header=0)
 
 ### シート名エラーが出る場合
 
-- `sheet_name` は **タブ名と完全一致**する必要があります。
+- `SHEET_NAME` は **タブ名と完全一致**する必要があります。
 - 全角・半角、スペースの違いにも注意してください。
 
 ---
 
-## gspread 認証の支援
+## 認証を関数でまとめる（`get_gspread_client_colab`）
 
 認証の手続きをひとつの関数にまとめました。以下のコードを実行することで、gspread 認証や、依存関係にあるライブラリのインポート (google.colab や gspread など) を一括でおこないます。
 
 ```python
 ## 本リポジトリで定義するライブラリのインポート
-from colab_common import get_gspread_client_colab()
+from colab_common import get_gspread_client_colab
 
 ## 認証手続き
 gc = get_gspread_client_colab()
@@ -121,7 +123,7 @@ gc = get_gspread_client_colab()
 
 ---
 
-## Google スプレッドシートへの書き込み
+## Google スプレッドシートへの書き込み (`write_df_to_gsheet`)
 
 pandas データフレーム形式のデータを Google スプレッドシートへ書き込みます。書き込みは考慮すべき事項が多いため、本リポジトリでは、`gspread_dataframe/set_with_dataframe` のラッパー関数である、`write_df_to_gsheet` を用意しています。
 
