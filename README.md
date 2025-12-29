@@ -55,14 +55,14 @@
 
 | 関数名 | 内容 | 実装ファイル | 解説ドキュメント |
 |---|---|---|---|
-| `get_gspread_client_colab` | Colab 上で Google Sheets に接続するための gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/write_google_spreadsheet.md`](./docs/write_google_spreadsheet.md) |
-| `write_df_to_gsheet` | pandas DataFrame を Google スプレッドシートに書き込む | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/write_google_spreadsheet.md`](./docs/write_google_spreadsheet.md) |
+| `get_gspread_client_colab` | gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/write_google_spreadsheet.md`](./docs/write_google_spreadsheet.md) |
+| `write_df_to_gsheet` | スプレッドシートへの書き込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/write_google_spreadsheet.md`](./docs/write_google_spreadsheet.md) |
 
 ### ドキュメントのみ
 
 |内容|解説ドキュメント|
 |---|---|
-|Google ドライブのマウントおよび基本的なテキスト読み込み方法|[`docs/io_text_basic.md`](./docs/io_text_basic.md)|
+|基本的なテキスト読み込み方法|[`docs/io_text_basic.md`](./docs/io_text_basic.md)|
 
 ---
 
