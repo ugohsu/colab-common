@@ -152,39 +152,9 @@ ON Students.id = X.studentid;
 
 ---
 
-## 8. データ操作（INSERT / UPDATE / DELETE）
+## 8. よく使う演算子・関数
 
-### 8.1 レコードの挿入
-
-```sql
-INSERT INTO Students (id, name, gender, height, birthday)
-VALUES (18116000, 'John Smith', 'm', 179, '1997-01-01');
-```
-
----
-
-### 8.2 レコードの更新
-
-```sql
-UPDATE Attendances
-SET class = '06'
-WHERE id = 18116000;
-```
-
----
-
-### 8.3 レコードの削除
-
-```sql
-DELETE FROM Students
-WHERE id = 18116080;
-```
-
----
-
-## 9. よく使う演算子・関数
-
-### 9.1 比較演算子
+### 8.1 比較演算子
 
 - `=` 等しい
 - `!=` 等しくない
@@ -192,7 +162,7 @@ WHERE id = 18116080;
 
 ---
 
-### 9.2 論理演算子
+### 8.2 論理演算子
 
 - `AND`
 - `OR`
@@ -200,7 +170,7 @@ WHERE id = 18116080;
 
 ---
 
-### 9.3 集計関数
+### 8.3 集計関数
 
 ```sql
 SELECT
@@ -212,7 +182,7 @@ GROUP BY gender;
 
 ---
 
-## 10. pandas との併用（再掲）
+## 9. pandas との併用（再掲）
 
 ```python
 df = pd.read_sql(
@@ -223,7 +193,7 @@ df = pd.read_sql(
 
 ---
 
-## 11. まとめ
+## 10. まとめ
 
 - SQL は **データを取り出すための道具**
 - 全構文を覚える必要はない
