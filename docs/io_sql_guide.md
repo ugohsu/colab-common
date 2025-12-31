@@ -6,6 +6,14 @@
 ここでは、Google Colaboratory + SQLite 環境を想定し、
 データ分析や前処理で頻出する SQL 構文を中心にまとめます。
 
+> **例コードの前提（本プロジェクトの想定テーブル）**
+>
+> - `documents`：文書メタ情報（例：`doc_id`, `title`, `path`）
+> - `tokens`：形態素解析結果（例：`doc_id`, `token`, `pos`）
+> - `doc_topics`：文書×トピックの結果（例：`doc_id`, `topic_id`, `weight`）
+>
+> ※ 実際の列名は環境によって異なるので、手元の DB スキーマに合わせて読み替えてください。
+
 ---
 
 ## 1. SELECT 文の基本
@@ -13,7 +21,7 @@
 ### 1.1 全列の取得（基本形）
 
 ```sql
-SELECT * FROM Students;
+SELECT * FROM tokens;
 ```
 
 テーブルのすべての列・行を取得します。
@@ -23,7 +31,7 @@ SELECT * FROM Students;
 ### 1.2 射影（必要な列だけ取得）
 
 ```sql
-SELECT id, height, birthday FROM Students;
+SELECT doc_id, token, pos FROM tokens;
 ```
 
 ---
@@ -31,7 +39,8 @@ SELECT id, height, birthday FROM Students;
 ### 1.3 選択（条件指定）
 
 ```sql
-SELECT * FROM Attendances WHERE class = '04';
+SELECT * FROM tokens
+WHERE pos = '名詞';
 ```
 
 ---
@@ -39,7 +48,7 @@ SELECT * FROM Attendances WHERE class = '04';
 ### 1.4 列名の変更（AS）
 
 ```sql
-SELECT studentid AS id FROM Attendances;
+SELECT doc_id AS id FROM tokens;
 ```
 
 ---
@@ -47,9 +56,9 @@ SELECT studentid AS id FROM Attendances;
 ### 1.5 射影 + 選択
 
 ```sql
-SELECT name, gender, birthday
-FROM Students
-WHERE gender = 'm';
+SELECT doc_id, token
+FROM tokens
+WHERE pos = '名詞';
 ```
 
 ---
@@ -57,8 +66,9 @@ WHERE gender = 'm';
 ## 2. パターンマッチ（LIKE）
 
 ```sql
-SELECT * FROM Students
-WHERE name LIKE '%moto%';
+SELECT *
+FROM tokens
+WHERE token LIKE '%本%';
 ```
 
 ---
@@ -66,8 +76,8 @@ WHERE name LIKE '%moto%';
 ## 3. 並び替え（ORDER BY）
 
 ```sql
-SELECT * FROM Students ORDER BY id ASC;
-SELECT * FROM Students ORDER BY id DESC;
+SELECT * FROM tokens ORDER BY doc_id ASC;
+SELECT * FROM tokens ORDER BY doc_id DESC;
 ```
 
 ---
@@ -76,10 +86,11 @@ SELECT * FROM Students ORDER BY id DESC;
 
 ```sql
 SELECT
-    month(birthday) AS birth_month,
-    COUNT(id) AS n_students
-FROM Students
-GROUP BY month(birthday);
+    pos,
+    COUNT(*) AS n_tokens
+FROM tokens
+GROUP BY pos
+ORDER BY n_tokens DESC;
 ```
 
 ---
@@ -87,7 +98,7 @@ GROUP BY month(birthday);
 ## 5. 重複の除去（DISTINCT）
 
 ```sql
-SELECT DISTINCT name FROM Students;
+SELECT DISTINCT token FROM tokens;
 ```
 
 ---
@@ -95,7 +106,7 @@ SELECT DISTINCT name FROM Students;
 ## 6. 行数制限（LIMIT）
 
 ```sql
-SELECT * FROM Tweets LIMIT 20;
+SELECT * FROM tokens LIMIT 20;
 ```
 
 ---
@@ -104,50 +115,78 @@ SELECT * FROM Tweets LIMIT 20;
 
 ### 7.1 内部結合（INNER JOIN）
 
+`documents` と `tokens` を `doc_id` で結合して、文書タイトル付きでトークンを確認します。
+
 ```sql
-SELECT *
-FROM Students
-INNER JOIN Attendances
-ON Students.id = Attendances.studentid;
+SELECT
+    d.doc_id,
+    d.title,
+    t.token,
+    t.pos
+FROM documents AS d
+INNER JOIN tokens AS t
+ON d.doc_id = t.doc_id;
 ```
 
 ---
 
 ### 7.2 左外部結合（LEFT JOIN）
 
+`documents` を基準にして、トークンが存在しない文書も含めて取得します。
+
 ```sql
-SELECT *
-FROM Students
-LEFT JOIN Attendances
-ON Students.id = Attendances.studentid;
+SELECT
+    d.doc_id,
+    d.title,
+    t.token,
+    t.pos
+FROM documents AS d
+LEFT JOIN tokens AS t
+ON d.doc_id = t.doc_id;
 ```
 
 ---
 
 ### 7.3 複数テーブルの結合
 
+`documents`（文書）× `doc_topics`（文書トピック）× `tokens`（トークン）を結合する例です。  
+（分析の目的に応じて、実際には JOIN するテーブルは取捨選択してください。）
+
 ```sql
-SELECT *
-FROM Students
-INNER JOIN Student_Groups
-    ON Students.id = Student_Groups.studentid
-INNER JOIN Groups
-    ON Student_Groups.groupid = Groups.id;
+SELECT
+    d.doc_id,
+    d.title,
+    dt.topic_id,
+    dt.weight,
+    t.token,
+    t.pos
+FROM documents AS d
+INNER JOIN doc_topics AS dt
+    ON d.doc_id = dt.doc_id
+INNER JOIN tokens AS t
+    ON d.doc_id = t.doc_id;
 ```
 
 ---
 
 ### 7.4 サブクエリを用いた結合
 
+「名詞のみ」に絞った `tokens` をサブクエリにして結合します。  
+（X は任意の別名です）
+
 ```sql
-SELECT *
-FROM Students
+SELECT
+    d.doc_id,
+    d.title,
+    X.token,
+    X.pos
+FROM documents AS d
 LEFT JOIN (
     SELECT *
-    FROM Attendances
-    WHERE class = '05'
+    FROM tokens
+    WHERE pos = '名詞'
 ) AS X
-ON Students.id = X.studentid;
+ON d.doc_id = X.doc_id;
 ```
 
 ---
@@ -174,11 +213,18 @@ ON Students.id = X.studentid;
 
 ```sql
 SELECT
-    gender,
-    AVG(height) AS avg_height
-FROM Students
-GROUP BY gender;
+    pos,
+    AVG(LENGTH(token)) AS avg_token_len
+FROM tokens
+GROUP BY pos
+ORDER BY avg_token_len DESC;
 ```
+
+- `COUNT`
+- `SUM`
+- `AVG`
+- `MIN`
+- `MAX`
 
 ---
 
@@ -186,7 +232,7 @@ GROUP BY gender;
 
 ```python
 df = pd.read_sql(
-    "SELECT * FROM Students WHERE gender = 'm'",
+    "SELECT doc_id, token FROM tokens WHERE pos = '名詞' LIMIT 200",
     con
 )
 ```
