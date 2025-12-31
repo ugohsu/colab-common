@@ -14,20 +14,17 @@
 
 ### RDBMS とは
 
-RDBMS（Relational DataBase Management System）は、  
-**表（テーブル）形式でデータを管理するデータベース**です。
+RDBMS（Relational DataBase Management System）は、**表（テーブル）形式でデータを管理するデータベース**です。
 
 - 行（row）：1件のデータ
 - 列（column）：項目（変数）
 - テーブル：同じ構造をもつデータの集合
 
-Excel や Google スプレッドシートの 1 枚のシートを、  
-より厳密に・効率よく扱える仕組みだと考えるとよいでしょう。
+Excel や Google スプレッドシートの 1 枚のシートを、より厳密に・効率よく扱える仕組みだと考えるとよいでしょう。
 
 ### SQL とは
 
-SQL（Structured Query Language）は、  
-RDBMS に対して **データの取得・検索・集計**を指示するための言語です。
+SQL（Structured Query Language）は、 RDBMS に対して **データの取得・検索・集計**を指示するための言語です。
 
 本資料では、まず次の操作を中心に扱います。
 
@@ -63,12 +60,16 @@ con = sqlite3.connect("nlp_data.db")
 - `"nlp_data.db"` はデータベースファイル名です
 - Colab の作業ディレクトリ（`/content`）に保存されます
 
+> ※ Google Drive 上に SQLite ファイルを保存したい場合は、
+> 事前に Google Drive をマウントする必要があります。
+> マウント方法については、
+> [`io_text_basic.md`](./io_text_basic.md) を参照してください。
+
 ---
 
 ## 4. pandas DataFrame を SQLite に保存する
 
-分析途中で作成した DataFrame を、  
-そのままデータベースに保存できます。
+分析途中で作成した DataFrame を、そのままデータベースに保存できます。
 
 ```python
 df_tok.to_sql(
@@ -86,8 +87,7 @@ df_tok.to_sql(
 
 ## 5. SQL を使ってデータを読み込む
 
-SQLite の強みは、  
-**必要なデータだけを SQL で指定して取り出せること**です。
+SQLite の強みは、**必要なデータだけを SQL で指定して取り出せること**です。
 
 ### 全件を読み込む
 
@@ -113,8 +113,7 @@ df_noun = pd.read_sql(
 
 ## 6. Google Colab での DataFrame 表示を改善する
 
-Colab では、`data_table` を有効化すると  
-検索・ソート可能なテーブルとして表示できます。
+Colab では、`data_table` を有効化すると検索・ソート可能なテーブルとして表示できます。
 
 ```python
 from google.colab import data_table
@@ -159,5 +158,4 @@ con.close()
 - `ORDER BY`
 - 複数テーブルの結合（JOIN）
 
-などを段階的に学ぶと、  
-より柔軟なデータ分析が可能になります。
+などを段階的に学ぶと、より柔軟なデータ分析が可能になります。
