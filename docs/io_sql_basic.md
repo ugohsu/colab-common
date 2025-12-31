@@ -109,6 +109,19 @@ df_noun = pd.read_sql(
 )
 ```
 
+### テーブル一覧・カラム (列名) 一覧の参照
+
+SQL文の記述に際してテーブル名やカラム名が使用されます。
+それらを簡単に閲覧するために、本リポジトリでは、テーブル一覧・カラム一覧を参照する関数を用意しています。
+
+```python
+## ライブラリのインポート
+from colab_common import describe_sqlite_tables
+
+## 実行
+describe_sqlite_tables(con)
+```
+
 ---
 
 ## 6. Google Colab での DataFrame 表示を改善する
@@ -144,6 +157,13 @@ pandas だけでも多くの処理は可能ですが、
 con.close()
 ```
 
+### with 文の使用
+
+`con.close()` の実行忘れがしばしば生じるので、このリポジトリでは、以下のように `with` 文を使って SQL に接続することを基本としましょう。
+
+```python
+with sqlite3.connect("nlp_data.db") as con:
+    df = pd.read_sql("SELECT * FROM tokens", con)
 ---
 
 ## 9. まとめ

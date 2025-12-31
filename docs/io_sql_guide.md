@@ -232,7 +232,7 @@ ORDER BY avg_token_len DESC;
 
 ```python
 df = pd.read_sql(
-    "SELECT doc_id, token FROM tokens WHERE pos = '名詞' LIMIT 200",
+    "SELECT doc_id, token FROM tokens WHERE pos = '名詞'",
     con
 )
 ```

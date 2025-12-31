@@ -57,14 +57,15 @@
 |---|---|---|---|
 | `get_gspread_client_colab` | gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
 | `write_df_to_gsheet` | スプレッドシートへの書き込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
+| `describe_sqlite_tables` | sqlite テーブルおよび列名一覧の取得 | [`colab_common/io_sql_utils.py`](./colab_common/io_sql_utils.py) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
 
 ### ドキュメントのみ
 
 |内容|解説ドキュメント|
 |---|---|
 |基本的なテキスト読み込み方法|[`docs/io_text_basic.md`](./docs/io_text_basic.md)|
-|SQLite 導入|[`docs/io_sql_basic.md`](./docs/io_sql_basic.md)|
-|SQLite ガイド|[`docs/io_sql_guide.md`](./docs/io_sql_guide.md)|
+|SQLite の導入|[`docs/io_sql_basic.md`](./docs/io_sql_basic.md)|
+|よく使う SQL 文|[`docs/io_sql_guide.md`](./docs/io_sql_guide.md)|
 
 ---
 

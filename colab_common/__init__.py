@@ -6,7 +6,15 @@ from .gsheet_io import (
     write_df_to_gsheet,
 )
 
+# ------------------------------------------------------------
+# SQLite utilities
+# ------------------------------------------------------------
+from .io_sql_utils import (
+    describe_sqlite_tables,
+)
+
 __all__ = [
     "get_gspread_client_colab",
     "write_df_to_gsheet",
+    "describe_sqlite_tables",
 ]
