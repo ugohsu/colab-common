@@ -119,7 +119,7 @@ Colab では、`data_table` を有効化すると検索・ソート可能なテ�
 from google.colab import data_table
 data_table.enable_dataframe_formatter()
 
-display(df_all.head(1000))
+display(df_all)
 ```
 
 ---
