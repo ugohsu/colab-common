@@ -63,6 +63,7 @@
 |内容|解説ドキュメント|
 |---|---|
 |基本的なテキスト読み込み方法|[`docs/io_text_basic.md`](./docs/io_text_basic.md)|
+|SQLite database の読み書き|[`docs/io_sql_basic.md`](./docs/io_sql_basic.md)|
 
 ---
 
