@@ -164,7 +164,7 @@ con.close()
 ```python
 with sqlite3.connect("nlp_data.db") as con:
     df = pd.read_sql("SELECT * FROM tokens", con)
----
+```
 
 ## 9. まとめ
 
