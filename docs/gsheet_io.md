@@ -111,7 +111,7 @@ df = get_as_dataframe(worksheet, header=0)
 
 ## 認証を関数でまとめる（`get_gspread_client_colab`）
 
-認証の手続きをひとつの関数にまとめました。以下のコードを実行することで、gspread 認証や、依存関係にあるライブラリのインポート (google.colab や gspread など) を一括でおこないます。
+認証の手続きをひとつの関数にまとめました。以下のコードを実行することで、gspread 認証を一括でおこないます。
 
 ```python
 ## 本リポジトリで定義するライブラリのインポート
