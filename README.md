@@ -53,21 +53,23 @@
 
 ### 関数一覧（import して使う）
 
-| 関数名 | 内容 | 実装ファイル | 解説ドキュメント |
-|---|---|---|---|
-| `get_gspread_client_colab` | gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
-| `write_df_to_gsheet` | スプレッドシートへの書き込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
-| `describe_sqlite_tables` | sqlite テーブルおよび列名一覧の取得 | [`colab_common/io_sql_utils.py`](./colab_common/io_sql_utils.py) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
+| 分類 | 関数名 | 内容 | 実装ファイル | 解説ドキュメント |
+| :--- | :--- | :--- | :--- | :--- |
+| **Google Sheets** | `get_gspread_client_colab` | gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
+| **Google Sheets** | `write_df_to_gsheet` | スプレッドシートへの書き込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
+| **SQLite** | `describe_sqlite_tables` | sqlite テーブルおよび列名一覧の取得 | [`colab_common/io_sql_utils.py`](./colab_common/io_sql_utils.py) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
+
+---
 
 ### ドキュメント一覧
 
-|内容|解説ドキュメント|
-|---|---|
-|基本的なテキスト読み込み方法|[`docs/io_text_basic.md`](./docs/io_text_basic.md)|
-|Google スプレッドシートの読み書き|[`docs/gsheet_io.md`](./docs/gsheet_io.md)|
-|SQLite の導入|[`docs/io_sql_basic.md`](./docs/io_sql_basic.md)|
-|よく使う SQL 文|[`docs/io_sql_guide.md`](./docs/io_sql_guide.md)|
-|作図時の日本語表記|[`docs/matplotlib_japanese_font.md`](./docs/matplotlib_japanese_font.md)|
+| 分類 | 内容 | 解説ドキュメント |
+| :--- | :--- | :--- |
+| **Text I/O** | テキストファイルの読み込み (標準ライブラリ) | [`docs/io_text_basic.md`](./docs/io_text_basic.md) |
+| **Google Sheets** | Google スプレッドシートの読み書き | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
+| **SQLite** | SQLite の接続・保存・読込 (基本) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
+| **SQLite** | SQLite / SQL クイックガイド (実践) | [`docs/io_sql_guide.md`](./docs/io_sql_guide.md) |
+| **Visualization** | 作図時の日本語表記 (Matplotlib) | [`docs/matplotlib_japanese_font.md`](./docs/matplotlib_japanese_font.md) |
 
 ---
 
