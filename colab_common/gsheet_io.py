@@ -10,6 +10,7 @@
 # - Series / value_counts() 由来のオブジェクトでも「良しなに」書き込む
 #   （reset_index し忘れ、列名なし、MultiIndex などを自動で整形）
 # - gc を省略できる（Colab 前提で自動認証・キャッシュ）
+# - gspread_dataframe を optional dependency 化（import 時に落ちないように修正）
 # ============================================================
 
 from __future__ import annotations
@@ -17,7 +18,9 @@ from __future__ import annotations
 from typing import Any, Iterable, Union
 
 import pandas as pd
-from gspread_dataframe import set_with_dataframe
+
+# 【修正】トップレベルでの import を削除し、関数内で遅延インポートします
+# from gspread_dataframe import set_with_dataframe
 
 
 # モジュール内キャッシュ（Colab の認証・初期化を毎回走らせない）
@@ -160,6 +163,17 @@ def write_df_to_gsheet(
     normalize:
         True の場合、Sheets に書き込みやすい形に自動整形します（推奨）。
     """
+    
+    # 【修正】依存ライブラリのチェックとインポートをここで行います
+    try:
+        from gspread_dataframe import set_with_dataframe
+    except ImportError:
+        raise ImportError(
+            "gspread_dataframe がインストールされていません。\n"
+            "Google Colab では次を実行してください:\n"
+            "  !pip install gspread-dataframe"
+        )
+
     if gc is None:
         gc = get_gspread_client_colab()
 
