@@ -9,7 +9,7 @@
 > **例コードの前提（本プロジェクトの想定テーブル）**
 >
 > - `documents`：文書メタ情報（例：`doc_id`, `title`, `path`）
-> - `tokens`：形態素解析結果（例：`doc_id`, `token`, `pos`）
+> - `tokens`：形態素解析結果（例：`doc_id`, `token_id`, `token`, `pos`）
 > - `doc_topics`：文書×トピックの結果（例：`doc_id`, `topic_id`, `weight`）
 >
 > ※ 実際の列名は環境によって異なるので、手元の DB スキーマに合わせて読み替えてください。
@@ -75,10 +75,35 @@ WHERE token LIKE '%本%';
 
 ## 3. 並び替え（ORDER BY）
 
+> **⚠️ 重要：SQL の順序に関する大原則**
+>
+> SQL では `ORDER BY` を指定しない限り、**結果の順序は保証されません。**
+> 「保存した順に出るだろう」と思っていても、データの追加・削除や処理タイミングによって、**ある日突然バラバラの順序で返ってくる**ことがあります。
+>
+> **N-gram や時系列データなど、「順序」が重要な分析では、必ず ORDER BY を記述してください。**
+
+### 3.1 基本的なソート
+
 ```sql
-SELECT * FROM tokens ORDER BY doc_id ASC;
-SELECT * FROM tokens ORDER BY doc_id DESC;
+SELECT * FROM tokens ORDER BY doc_id ASC;   -- 昇順（小さい順）
+SELECT * FROM tokens ORDER BY doc_id DESC;  -- 降順（大きい順）
+
 ```
+
+### 3.2 【必須】元の文脈を復元するソート
+
+文章としての「語順」を正しく取り出したい場合は、必ず **`doc_id` と `token_id` の両方**を指定してソートしてください。
+
+```sql
+SELECT * FROM tokens
+WHERE pos IN ('名詞', '動詞')
+ORDER BY doc_id, token_id;
+```
+
+1. まず `doc_id` 順に並べ、
+2. 同じ文書の中では `token_id`（通し番号）順に並べます。
+
+これを行わないと、`compute_ngram` などに渡したときに「前の文書の末尾」と「次の文書の途中」が混ざったり、文中の単語が前後したりして、分析結果が破壊されます。
 
 ---
 
