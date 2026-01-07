@@ -239,7 +239,7 @@ ON d.doc_id = X.doc_id;
 ```sql
 SELECT
     pos,
-    AVG(LENGTH(word)) AS avg_token_len
+    AVG(LENGTH(word)) AS avg_word_len
 FROM tokens
 GROUP BY pos
 ORDER BY avg_word_len DESC;
