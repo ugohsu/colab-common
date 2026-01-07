@@ -1,0 +1,187 @@
+# ローカル環境構築ガイド
+
+本リポジトリ（`colab-common`）および関連ライブラリ（`colab-nlp`）は、基本的に Google Colaboratory で動作させることを前提としています。
+
+ただし、大規模なデータを扱う場合や、オフラインでの作業が必要な場合のために、**ローカル環境（Linux / WSL）** での環境構築手順を以下にまとめます。
+
+> **対象者**: コマンドライン操作（ターミナル）に慣れている方
+> **Windows ユーザーの方**: 本書末尾の **【付録：Windows ユーザー向け設定】** を先に参照し、WSL (Debian) 環境を用意してください。
+
+---
+
+## 1. 必要なツールのインストール
+
+まず、Python 環境構築に必要な最小限のツールをインストールします。
+
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git
+
+```
+
+---
+
+## 2. ディレクトリ構成の設計（重要）
+
+ローカル環境では、**「分析ファイル（自分が書くコード）」** と **「環境（ライブラリ本体）」** の場所を分けることを推奨します。
+これにより、分析ファイルだけを Dropbox や Google Drive で同期し、重たいライブラリや環境設定はローカルに留めることができます。
+
+### 推奨ディレクトリ構成 (Tree)
+
+以下のような構成を目指します。
+
+```text
+~ (ホームディレクトリ)
+├── venvs/                  # 仮想環境置き場（同期しない）
+│   └── nlp-env/            # ★今回作成する仮想環境
+│
+├── colab-utils/            # ライブラリ置き場（同期しない）
+│   ├── colab-common/       # git clone したもの
+│   └── colab-nlp/          # git clone したもの
+│
+└── Dropbox/                # クラウド同期フォルダ
+    └── my_analysis/        # ★実際の分析作業場所
+        ├── analysis.py     # 自分で書くスクリプト
+        └── ...
+
+```
+
+* **`~/venvs`**: Python 仮想環境をまとめて置く場所です。
+* **`~/colab-utils`**: 本リポジトリなどを clone しておく場所です。
+* **`~/Dropbox/my_analysis`**: 実際にコードを書く場所です。ここだけをクラウド同期します。
+
+---
+
+## 3. 環境構築の手順
+
+### 3-1. 仮想環境の作成
+
+ホームディレクトリ直下に仮想環境用のフォルダを作り、プロジェクトごとの環境をそこに作成します。
+
+```bash
+# 仮想環境置き場を作成
+mkdir -p ~/venvs
+
+# 'nlp-env' という名前で仮想環境を作成
+python3 -m venv ~/venvs/nlp-env
+
+# 仮想環境の有効化 (Activate)
+source ~/venvs/nlp-env/bin/activate
+
+```
+
+> **Point**: ターミナルの先頭に `(nlp-env)` と表示されていれば OK です。
+
+### 3-2. ライブラリの配置とインストール
+
+ライブラリ（リポジトリ）は、分析ディレクトリとは別の場所（`~/colab-utils`）に clone します。
+
+```bash
+# ライブラリ置き場を作成して移動
+mkdir -p ~/colab-utils
+cd ~/colab-utils
+
+# 1. 共通ユーティリティ (colab-common) の clone
+git clone https://github.com/ugohsu/colab-common.git
+
+# 2. 自然言語処理ライブラリ (colab-nlp) の clone
+#    ※ NLPを行わない場合は省略可能です
+git clone https://github.com/ugohsu/colab-nlp.git
+
+```
+
+続いて、必要な Python パッケージをインストールします。
+
+```bash
+# 必須ライブラリ
+pip install pandas matplotlib scikit-learn sqlite3
+
+# 自然言語処理用 (colab-nlp 利用時)
+pip install sudachipy sudachidict_core
+
+```
+
+---
+
+## 4. 分析スクリプトからの読み込み
+
+実際の分析作業は、任意のディレクトリ（Dropbox内など）で行えます。
+コードの冒頭で、`~/colab-utils` に置いたライブラリへのパスを通してください。
+
+```python
+import sys
+import os
+
+# ライブラリの置き場所を指定
+# (ホームディレクトリからの相対パスで指定すると、Mac/Linux間で移植性が高まります)
+utils_dir = os.path.expanduser("~/colab-utils")
+
+# パスを追加
+sys.path.append(os.path.join(utils_dir, "colab-common"))
+sys.path.append(os.path.join(utils_dir, "colab-nlp"))  # 使う場合のみ
+
+# インポート確認
+from colab_common import describe_sqlite_tables
+from colab_nlp import tokenize_df
+
+print("Import successful!")
+
+```
+
+> **Note**: `colab_common` は安全に設計されており、インポートしただけでは `google.colab` 固有の処理（認証など）は走りません。ローカル環境でもエラーなく読み込めます。
+
+---
+
+## 5. ローカル利用時の注意点
+
+Colab 用のコードには、ローカル環境では動作しない機能が一部あります。
+
+1. **Google Drive マウント**: `drive.mount()` は動きません。ローカルのパスを直接指定してください。
+2. **Google 認証**: `get_gspread_client_colab()` は Colab 独自の認証機能を使っているため、ローカルでは動作しません。スプレッドシートを操作する場合は、GCP サービスアカウントキー等を使った認証コードに書き換える必要があります。
+3. **日本語フォント**: Colab 用のフォントパス（`/usr/share/fonts/...`）は存在しない場合があります。`sudo apt install fonts-noto-cjk` 等でフォントを入れ、正しいパスを指定してください。
+
+---
+
+# 【付録：Windows ユーザー向け設定】
+
+Windows で開発を行う場合は、**WSL (Windows Subsystem for Linux)** を使用して Linux 環境 (Debian) を構築することを強く推奨します。
+
+## A-1. WSL (Debian) のインストール
+
+PowerShell を「管理者として実行」し、以下のコマンドを入力してください。
+
+```powershell
+wsl --install -d Debian
+
+```
+
+インストール完了後、再起動してユーザー名・パスワードを設定したら、本ガイドの **「1. 必要なツールのインストール」** から作業を開始してください。
+
+---
+
+# 【付録：大規模データ処理の最適化】
+
+`colab-nlp` の `CorpusDB` を使用して大規模なテキストデータを処理する場合、ファイルの配置場所がパフォーマンスに大きく影響します。
+
+Windows + WSL 環境では、以下の **ハイブリッド配置** を推奨します。
+
+1. **データベース (`corpus.db`)** → **WSL 側に置く** (例: `~/venvs/my-db/corpus.db`)
+* 高速かつ安全に書き込みを行うため、必ず WSL 領域内に置いてください。
+
+
+2. **元テキストデータ (`*.txt`)** → **Windows 側に置いたままでOK**
+* Windows 側のフォルダ（`/mnt/c/...`）を直接参照することで、ディスク容量を節約できます。
+
+
+
+```python
+from colab_nlp import CorpusDB
+
+# DBは WSL 側に作成 (高速)
+db = CorpusDB("corpus.db")
+
+# データは Windows 側を参照 (容量節約)
+root_dir = "/mnt/c/Users/YourName/Documents/nlp_data"
+
+db.register_files(root_dir)
+```

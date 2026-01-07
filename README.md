@@ -70,15 +70,17 @@
 | **SQLite** | SQLite の接続・保存・読込 (基本) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
 | **SQLite** | SQLite / SQL クイックガイド (実践) | [`docs/io_sql_guide.md`](./docs/io_sql_guide.md) |
 | **Visualization** | 作図時の日本語表記 (Matplotlib) | [`docs/matplotlib_japanese_font.md`](./docs/matplotlib_japanese_font.md) |
+| **Environment** | ローカル環境構築ガイド (WSL/Linux) | [`docs/local_setup_guide.md`](./docs/local_setup_guide.md) |
 
 ---
 
-## ライブラリインポートの手順
+## ライブラリインポートの手順 (Google Colab)
 
 ### 1. リポジトリを clone
 
 ```python
 !git clone https://github.com/ugohsu/colab-common.git
+
 ```
 
 ### 2. import 用のパスを追加
@@ -86,12 +88,14 @@
 ```python
 import sys
 sys.path.append("/content/colab-common")
+
 ```
 
 ### 3. 関数を import (例)
 
 ```python
 from colab_common import write_df_to_gsheet
+
 ```
 
 ---
@@ -102,13 +106,24 @@ from colab_common import write_df_to_gsheet
 
 ```
 fatal: destination path 'colab-common' already exists
+
 ```
 
 というエラーが発生し、そのセルでは、当該行以降のコードが実行されなくなります。
 
 ---
 
+## ローカル環境での利用について (Advanced)
+
+本ライブラリは基本的に Google Colaboratory での動作を前提としていますが、大規模データ処理などの目的で **ローカル環境 (WSL/Linux)** で利用することも可能です。
+
+推奨されるディレクトリ構成や環境構築の手順については、以下のガイドを参照してください。
+
+* **[ローカル環境構築ガイド](https://www.google.com/search?q=./docs/local_setup_guide.md)**
+
+---
+
 ## ライセンス・利用について
 
-- 教育・研究目的での利用を想定しています
-- 講義資料・演習ノートへの組み込みも自由です
+* 教育・研究目的での利用を想定しています
+* 講義資料・演習ノートへの組み込みも自由です
