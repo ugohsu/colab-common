@@ -119,7 +119,7 @@ fatal: destination path 'colab-common' already exists
 
 推奨されるディレクトリ構成や環境構築の手順については、以下のガイドを参照してください。
 
-* **[ローカル環境構築ガイド](https://www.google.com/search?q=./docs/local_setup_guide.md)**
+* **[ローカル環境構築ガイド (docs/local_setup_guide.md)](./docs/local_setup_guide.md)**
 
 ---
 
