@@ -9,7 +9,7 @@
 > **例コードの前提（本プロジェクトの想定テーブル）**
 >
 > - `documents`：文書メタ情報（例：`doc_id`, `title`, `path`）
-> - `tokens`：形態素解析結果（例：`doc_id`, `token_id`, `token`, `pos`）
+> - `tokens`：形態素解析結果（例：`doc_id`, `token_id`, `word`, `pos`）
 > - `doc_topics`：文書×トピックの結果（例：`doc_id`, `topic_id`, `weight`）
 >
 > ※ 実際の列名は環境によって異なるので、手元の DB スキーマに合わせて読み替えてください。
@@ -31,7 +31,7 @@ SELECT * FROM tokens;
 ### 1.2 射影（必要な列だけ取得）
 
 ```sql
-SELECT doc_id, token, pos FROM tokens;
+SELECT doc_id, word, pos FROM tokens;
 ```
 
 ---
@@ -56,7 +56,7 @@ SELECT doc_id AS id FROM tokens;
 ### 1.5 射影 + 選択
 
 ```sql
-SELECT doc_id, token
+SELECT doc_id, word
 FROM tokens
 WHERE pos = '名詞';
 ```
@@ -68,7 +68,7 @@ WHERE pos = '名詞';
 ```sql
 SELECT *
 FROM tokens
-WHERE token LIKE '%本%';
+WHERE word LIKE '%本%';
 ```
 
 ---
@@ -123,7 +123,7 @@ ORDER BY n_tokens DESC;
 ## 5. 重複の除去（DISTINCT）
 
 ```sql
-SELECT DISTINCT token FROM tokens;
+SELECT DISTINCT word FROM tokens;
 ```
 
 ---
@@ -146,7 +146,7 @@ SELECT * FROM tokens LIMIT 20;
 SELECT
     d.doc_id,
     d.title,
-    t.token,
+    t.word,
     t.pos
 FROM documents AS d
 INNER JOIN tokens AS t
@@ -163,7 +163,7 @@ ON d.doc_id = t.doc_id;
 SELECT
     d.doc_id,
     d.title,
-    t.token,
+    t.word,
     t.pos
 FROM documents AS d
 LEFT JOIN tokens AS t
@@ -183,7 +183,7 @@ SELECT
     d.title,
     dt.topic_id,
     dt.weight,
-    t.token,
+    t.word,
     t.pos
 FROM documents AS d
 INNER JOIN doc_topics AS dt
@@ -203,7 +203,7 @@ INNER JOIN tokens AS t
 SELECT
     d.doc_id,
     d.title,
-    X.token,
+    X.word,
     X.pos
 FROM documents AS d
 LEFT JOIN (
@@ -239,10 +239,10 @@ ON d.doc_id = X.doc_id;
 ```sql
 SELECT
     pos,
-    AVG(LENGTH(token)) AS avg_token_len
+    AVG(LENGTH(word)) AS avg_token_len
 FROM tokens
 GROUP BY pos
-ORDER BY avg_token_len DESC;
+ORDER BY avg_word_len DESC;
 ```
 
 - `COUNT`
@@ -257,7 +257,7 @@ ORDER BY avg_token_len DESC;
 
 ```python
 df = pd.read_sql(
-    "SELECT doc_id, token FROM tokens WHERE pos = '名詞'",
+    "SELECT doc_id, word FROM tokens WHERE pos = '名詞'",
     con
 )
 ```
