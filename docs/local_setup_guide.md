@@ -42,7 +42,7 @@ sudo apt install -y python3 python3-venv python3-pip git
 └── Dropbox/                # クラウド同期フォルダ
     └── my_analysis/        # ★実際の分析作業場所
         ├── analysis.py     # 自分で書くスクリプト
-        └── ...
+        └── requirements.txt # ★ライブラリのリスト
 
 ```
 
@@ -100,6 +100,59 @@ pip install pandas matplotlib scikit-learn
 pip install sudachipy sudachidict_core
 
 ```
+
+### 3-3. パッケージ情報の保存と復元 (`requirements.txt`)
+
+インストールしたライブラリの種類とバージョンを記録（フリーズ）しておくと、別の PC や将来の自分が同じ環境を再現できます。
+
+**現状の保存**
+環境構築が一通り終わったら、分析ディレクトリ（例: `~/Dropbox/my_analysis`）に移動し、リストを作成します。
+
+```bash
+cd ~/Dropbox/my_analysis
+pip freeze > requirements.txt
+
+```
+
+**環境の復元**
+別の環境で作業する際は、以下のコマンドで同じライブラリを一括インストールできます。
+
+```bash
+pip install -r requirements.txt
+
+```
+
+### 3-4. ライブラリの更新 (Maintenance)
+
+ライブラリは日々更新されます。時々以下の手順で最新版にアップデートすることを推奨します。
+
+1. **更新の確認**:
+```bash
+pip list --outdated
+
+```
+
+
+2. **更新の実行**:
+* **個別更新**: `pip install --upgrade パッケージ名`
+* **一括更新**: `pip-review` ツールを使うと便利です。
+```bash
+pip install pip-review
+pip-review --local --interactive
+
+```
+
+
+
+
+3. **リストの更新**:
+更新後は必ず `requirements.txt` を書き換えてください。
+```bash
+pip freeze > requirements.txt
+
+```
+
+
 
 ---
 
@@ -184,4 +237,5 @@ db = CorpusDB("corpus.db")
 root_dir = "/mnt/c/Users/YourName/Documents/nlp_data"
 
 db.register_files(root_dir)
+
 ```
