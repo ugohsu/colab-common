@@ -94,10 +94,10 @@ git clone https://github.com/ugohsu/colab-nlp.git
 
 ```bash
 # 必須ライブラリ
-pip install pandas matplotlib scikit-learn
+pip install pandas matplotlib scikit-learn tqdm networkx
 
-# 自然言語処理用 (colab-nlp 利用時)
-pip install sudachipy sudachidict_core
+# 自然言語処理用
+pip install sudachipy sudachidict_core janome wordcloud
 
 ```
 
