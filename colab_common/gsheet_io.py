@@ -221,7 +221,7 @@ def read_df_from_gsheet(
     sheet_url: str,
     *,
     gc: Any = None,
-    sheet_name: str = "temporary",
+    sheet_name: str = "シート1",
     header: Union[int, None] = 0,
     usecols: Optional[Sequence[Union[int, str]]] = None,
     nrows: Optional[int] = None,
@@ -242,7 +242,7 @@ def read_df_from_gsheet(
     gc:
         認証済み gspread client。None なら Colab 認証してキャッシュ（write と同様）
     sheet_name:
-        ワークシート名（既定 "temporary"）
+        ワークシート名（既定 "シート1"）
     header:
         0: 先頭行をヘッダとして扱う / None: ヘッダなしで連番列名
     usecols:

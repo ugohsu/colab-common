@@ -14,6 +14,8 @@
 
 ## Google スプレッドシートの読み込み手順 (基本形)
 
+本節で解説する手順はあくまで基本です。実際の運用においては、本リポジトリでは後述する `read_df_from_gsheet` の使用を推奨します。
+
 ### 1. 読み込み対象の指定
 
 まずは読み込みの対象としたい Google スプレッドシートの URL とシート名を調べます。以下のように変数に代入しておくとよいでしょう。
@@ -119,6 +121,68 @@ from colab_common import get_gspread_client_colab
 
 ## 認証手続き
 gc = get_gspread_client_colab()
+```
+
+---
+
+## Google スプレッドシートの読み込み
+
+本リポジトリでは、Google スプレッドシートから pandas DataFrame を読み込む際に、`read_df_from_gsheet` の使用を推奨します。
+
+この関数は、
+
+- Colab 環境での認証を自動化
+- 認証情報のキャッシュ
+- Sheets 特有の空文字・列名問題への対処
+- pandas 的な引数設計（usecols / nrows / parse_dates など）
+
+をまとめて提供します。
+
+### クイックスタート
+
+```python
+from colab_common import read_df_from_gsheet
+
+df = read_df_from_gsheet(SHEET_URL)
+```
+
+### 主な引数
+
+- `sheet_name`  
+  読み込み対象のワークシート名（既定 `"シート1"`）
+
+- `usecols`  
+  読み込む列を指定します（列名または 0-based index）
+
+- `nrows`  
+  先頭から読み込む行数（デバッグ用途など）
+
+- `parse_dates`  
+  日付として読み込む列名のリスト
+
+- `dtype`  
+  列の型を明示的に指定します
+  （指定した型に変換できない場合はエラーになります）
+
+- `empty_as_na`  
+  空文字 `""` を欠損値（NA）として扱います
+
+- `evaluate_formulas`  
+  - True（既定）：数式セルは「計算結果」を取得  
+  - False：数式文字列（`=SUM(...)`）を取得
+```
+
+### 具体例
+
+```python
+df = read_df_from_gsheet(
+    SHEET_URL,
+    sheet_name="temporary",
+    usecols=["doc_id", "date", "price"],
+    dtype={"doc_id": "int64"},
+    parse_dates=["date"],
+    empty_as_na=True,
+)
 ```
 
 ---
