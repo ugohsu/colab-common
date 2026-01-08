@@ -14,7 +14,7 @@
 
 ## Google スプレッドシートの読み込み手順 (基本形)
 
-本節で解説する手順はあくまで基本です。実際の運用においては、本リポジトリでは後述する `read_df_from_gsheet` の使用を推奨します。
+本節では、Colab におけるスプレッドシートの取り扱いに関する理解を深めることが目的です。本リポジトリでは、実際の運用においては、後述する `read_df_from_gsheet` の使用を推奨します。
 
 ### 1. 読み込み対象の指定
 
@@ -127,7 +127,7 @@ gc = get_gspread_client_colab()
 
 ## Google スプレッドシートの読み込み
 
-本リポジトリでは、Google スプレッドシートから pandas DataFrame を読み込む際に、`read_df_from_gsheet` の使用を推奨します。
+本リポジトリでは、Google スプレッドシートから pandas DataFrame を読み込むラッパー関数 `read_df_from_gsheet` を用意しています。
 
 この関数は、
 
@@ -170,7 +170,29 @@ df = read_df_from_gsheet(SHEET_URL)
 - `evaluate_formulas`  
   - True（既定）：数式セルは「計算結果」を取得  
   - False：数式文字列（`=SUM(...)`）を取得
+  
+#### 欠損値（NA）の扱いについて
+
+`read_df_from_gsheet` では、既定で **空セルを欠損値（NA）として読み込みます**
+（`empty_as_na=True` が既定）。
+
+これは、R（googlesheets4）との相互運用性を考慮した設計です。
+
+- R（googlesheets4）では、`NA` は Google スプレッドシート上では **空セル** として書き出されます
+- gspread による読み込みでは、空セルは一旦 `""`（空文字）として取得されます
+- 本関数では、それらを自動的に pandas の欠損値（`pd.NA`）へ正規化します
+
+このため、
+
+```text
+R (NA)
+ → Google Sheets（空セル）
+ → pandas（pd.NA）
 ```
+
+という欠損表現が一貫して保たれます。
+
+欠損を空文字のまま保持したい場合は、`empty_as_na=False` を明示的に指定してください。
 
 ### 具体例
 
@@ -184,6 +206,57 @@ df = read_df_from_gsheet(
     empty_as_na=True,
 )
 ```
+
+---
+
+## 数値中心のデータ型変換（`cast_numeric_schema`）
+
+Google スプレッドシートから読み込まれたデータは、
+多くの場合すべて `object` 型（文字列）として pandas に入ってきます。
+
+特に、財務データ・KPI・集計結果などでは、
+**大部分の列が数値である**ことが一般的です。
+
+そのようなケースでは、`cast_numeric_schema` を使用すると便利です。
+
+この関数は、
+
+- 多くの列が数値であることを前提に
+- 変換可能な列を **自動的に数値型（float）へ変換**
+- 変換に失敗した値があっても、既定では **列を壊さず保持**
+- 数値変換を試みない列だけを「例外」として指定
+
+という方針で設計されています。
+
+### 基本例
+
+```python
+from colab_common import cast_numeric_schema
+
+df = cast_numeric_schema(
+    df,
+    exclude_cols={"company_name", "ticker"},
+    int_cols={"year"},
+    date_cols={"date"},
+)
+```
+
+### 挙動の概要
+
+* 数値として解釈できる列 → `float`
+* 整数列（`int_cols`） → nullable 整数型（`Int64`）
+* 日付列（`date_cols`） → `datetime64`
+* 数値に変換できない列 → 文字列のまま保持
+* 欠損値（`pd.NA`） → そのまま保持
+
+### strict モード
+
+```python
+df = cast_numeric_schema(df, strict=True)
+```
+
+`strict=True` を指定すると、数値変換に失敗した値が存在する列で例外を送出します。
+データ品質を厳密にチェックしたい場合に使用してください。
 
 ---
 

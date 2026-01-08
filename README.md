@@ -58,6 +58,7 @@
 | **Google Sheets** | `get_gspread_client_colab` | gspread クライアント取得 | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
 | **Google Sheets** | `read_df_from_gsheet` | スプレッドシートからの読み込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
 | **Google Sheets** | `write_df_to_gsheet` | スプレッドシートへの書き込み | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
+| **DataFrame** | `cast_numeric_schema` | 数値中心のデータ型へ自動変換（失敗時は保持） | [`colab_common/gsheet_io.py`](./colab_common/gsheet_io.py) | [`docs/gsheet_io.md`](./docs/gsheet_io.md) |
 | **SQLite** | `describe_sqlite_tables` | sqlite テーブルおよび列名一覧の取得 | [`colab_common/io_sql_utils.py`](./colab_common/io_sql_utils.py) | [`docs/io_sql_basic.md`](./docs/io_sql_basic.md) |
 
 ---
