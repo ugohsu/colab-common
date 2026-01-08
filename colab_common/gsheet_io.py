@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Union
+from typing import Any, Iterable, Union, Optional, Sequence
 
 import pandas as pd
 
@@ -205,3 +205,128 @@ def write_df_to_gsheet(
     )
 
     print("✅ DataFrame written to Google Sheets:", sheet_url, "/", sheet_name)
+
+def _clean_columns_for_read(cols: Sequence[Any]) -> list[str]:
+    """読み込み時の列名を整形（空・重複・前後空白など）"""
+    cols2 = []
+    for i, c in enumerate(cols, start=1):
+        s = "" if c is None else str(c)
+        s = s.strip()
+        cols2.append(s if s != "" else f"col_{i}")
+    # 重複を a, a_2... にする（write 側と同じ規約）
+    return _make_unique(cols2)
+
+
+def read_df_from_gsheet(
+    sheet_url: str,
+    *,
+    gc: Any = None,
+    sheet_name: str = "temporary",
+    header: Union[int, None] = 0,
+    usecols: Optional[Sequence[Union[int, str]]] = None,
+    nrows: Optional[int] = None,
+    dtype: Optional[dict[str, Any]] = None,
+    parse_dates: Optional[Union[Sequence[str], bool]] = None,
+    keep_default_na: bool = True,
+    na_values: Optional[Sequence[str]] = None,
+    evaluate_formulas: bool = True,
+    empty_as_na: bool = False,
+) -> pd.DataFrame:
+    """
+    Google Sheets -> pandas DataFrame（Colab 認証を自動化・キャッシュ可能）
+
+    Parameters
+    ----------
+    sheet_url:
+        読み込み元スプレッドシートURL
+    gc:
+        認証済み gspread client。None なら Colab 認証してキャッシュ（write と同様）
+    sheet_name:
+        ワークシート名（既定 "temporary"）
+    header:
+        0: 先頭行をヘッダとして扱う / None: ヘッダなしで連番列名
+    usecols:
+        取りたい列（列名 or 0-based の列番号）。None なら全列
+    nrows:
+        先頭から読む行数（ヘッダ行を除くデータ行に対して適用）
+    dtype, parse_dates, keep_default_na, na_values:
+        pandas 側での型変換・欠損処理
+    evaluate_formulas:
+        True: 数式セルは「計算結果」を取得（既定）
+        False: 数式文字列（"=SUM(...)"）を取得
+    empty_as_na:
+        True: ""（空文字）を NA 扱いに寄せる（用途により有効）
+    """
+    if gc is None:
+        gc = get_gspread_client_colab()
+
+    # ここを追加（任意）
+    try:
+        import gspread  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            "gspread がインストールされていません。\n"
+            "Google Colab では次を実行してください:\n"
+            "  !pip install gspread"
+        )
+
+    sh = gc.open_by_url(sheet_url)
+    ws = sh.worksheet(sheet_name)
+
+    # gspread: get_all_values() は「表示値(文字列)」寄り。
+    # value_render_option を使うと数式 or 計算結果を制御可能。
+    value_render_option = "FORMATTED_VALUE" if evaluate_formulas else "FORMULA"
+    rows = ws.get_all_values(value_render_option=value_render_option)
+
+    if not rows:
+        return pd.DataFrame()
+
+    if header is None:
+        data_rows = rows
+        columns = [f"col_{i}" for i in range(1, (len(rows[0]) if rows else 0) + 1)]
+    else:
+        if header != 0:
+            # 必要になったら拡張（今は write 側と合わせて 0 前提を強く推奨）
+            raise ValueError("現在 header は 0 または None のみ対応です。")
+        columns = _clean_columns_for_read(rows[0])
+        data_rows = rows[1:]
+
+    if nrows is not None:
+        data_rows = data_rows[:nrows]
+
+    df = pd.DataFrame(data_rows, columns=columns)
+
+    # usecols（列名 or インデックス）
+    if usecols is not None:
+        if all(isinstance(c, int) for c in usecols):
+            df = df.iloc[:, list(usecols)]
+        else:
+            df = df.loc[:, list(usecols)]
+
+    # 空文字を NA 寄せしたい場合
+    if empty_as_na:
+        df = df.replace("", pd.NA)
+
+    # na_values の反映（pandas 的に寄せる）
+    if na_values is not None:
+        df = df.replace(list(na_values), pd.NA)
+
+    # 型変換（必要な列だけ確実に）
+    if dtype:
+        df = df.astype(dtype, errors="raise")
+
+    # 日付パース（必要な列だけ）
+    if parse_dates:
+        if parse_dates is True:
+            # 自動推定は誤爆しやすいので、基本は列名指定推奨
+            pass
+        else:
+            for c in parse_dates:
+                if c in df.columns:
+                    df[c] = pd.to_datetime(df[c], errors="coerce")
+
+    # keep_default_na は read_csv 的な概念なので、ここでは直接は使いにくい
+    # （必要なら empty_as_na / na_values 側で制御するのが安全）
+    _ = keep_default_na
+
+    return df
