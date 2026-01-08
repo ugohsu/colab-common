@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Union, Optional, Sequence
+from typing import Any, Iterable, Union, Optional, Sequence, Set
 
 import pandas as pd
 
@@ -230,7 +230,7 @@ def read_df_from_gsheet(
     keep_default_na: bool = True,
     na_values: Optional[Sequence[str]] = None,
     evaluate_formulas: bool = True,
-    empty_as_na: bool = False,
+    empty_as_na: bool = True,
 ) -> pd.DataFrame:
     """
     Google Sheets -> pandas DataFrame（Colab 認証を自動化・キャッシュ可能）
@@ -328,5 +328,105 @@ def read_df_from_gsheet(
     # keep_default_na は read_csv 的な概念なので、ここでは直接は使いにくい
     # （必要なら empty_as_na / na_values 側で制御するのが安全）
     _ = keep_default_na
+
+    return df
+
+def _to_num_safe(x):
+    """
+    安全に数値変換を試みる。
+    - 変換できれば float を返す
+    - できなければ元の値をそのまま返す
+    """
+    if x is None:
+        return x
+
+    s = str(x).strip()
+    if s == "":
+        return x
+
+    # よくある表記ゆれ（汎用）
+    s = s.replace(",", "")
+    s = s.replace("▲", "-")
+    if s.startswith("(") and s.endswith(")"):
+        s = "-" + s[1:-1]
+
+    try:
+        return float(s)
+    except Exception:
+        return x
+
+def cast_numeric_schema(
+    df: pd.DataFrame,
+    *,
+    exclude_cols: Iterable[str] | None = None,
+    int_cols: Iterable[str] | None = None,
+    date_cols: Iterable[str] | None = None,
+    strict: bool = False,
+) -> pd.DataFrame:
+    """
+    多くの列が数値であることを想定し、
+    変換可能な列を自動的に数値型へ変換する。
+
+    - 数値変換は try ベースで安全に実施
+    - 変換に失敗した値があっても、既定では列を壊さない
+    - 数値化できない列は object のまま残る
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        読み込み直後の DataFrame（多くは object 型）
+    exclude_cols : iterable of str, optional
+        数値変換を試みない列（ID、名称、カテゴリなど）
+    int_cols : iterable of str, optional
+        整数として扱いたい列（year, period など）
+    date_cols : iterable of str, optional
+        日付として変換する列
+    strict : bool, default False
+        True の場合、数値変換に失敗した値がある列で例外を投げる
+
+    Returns
+    -------
+    pd.DataFrame
+        数値中心のスキーマに変換された DataFrame
+    """
+    df = df.copy()
+
+    exclude_cols: Set[str] = set(exclude_cols or [])
+    int_cols: Set[str] = set(int_cols or [])
+    date_cols: Set[str] = set(date_cols or [])
+
+    # --- 自動数値変換 ---
+    for col in df.columns:
+        if col in exclude_cols or col in int_cols or col in date_cols:
+            continue
+
+        converted = df[col].map(_to_num_safe)
+
+        # 少なくとも1つ float に変換できたら「数値列候補」
+        has_numeric = converted.map(lambda x: isinstance(x, float)).any()
+
+        if not has_numeric:
+            continue
+
+        if strict:
+            bad = converted.map(
+                lambda x: isinstance(x, float) or pd.isna(x)
+            )
+            if not bad.all():
+                raise ValueError(
+                    f"数値変換できない値があります: column='{col}'"
+                )
+
+        df[col] = converted
+
+    # --- 整数列 ---
+    for col in int_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+
+    # --- 日付列 ---
+    for col in date_cols:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
 
     return df
