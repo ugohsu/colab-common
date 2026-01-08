@@ -210,20 +210,17 @@ pip freeze > requirements.txt
 
 ## 4. 分析スクリプトからの読み込み
 
-実際の分析作業は、任意のディレクトリ（Dropbox内など）で行えます。
-コードの冒頭で、`~/colab-utils` に置いたライブラリへのパスを通してください。
+前項（3-3）の設定が完了していれば、`sys.path.append` に関する特別なコードを書く必要はありません。
+通常のライブラリと同様にインポートして使用できます。
 
 ```python
 import sys
 import os
 
-# ライブラリの置き場所を指定
-# (ホームディレクトリからの相対パスで指定すると、Mac/Linux間で移植性が高まります)
-utils_dir = os.path.expanduser("~/colab-utils")
-
-# パスを追加
-sys.path.append(os.path.join(utils_dir, "colab-common"))
-sys.path.append(os.path.join(utils_dir, "colab-nlp"))  # 使う場合のみ
+# 3-3 の設定を行っていない場合のみ、以下のパス設定が必要です
+# utils_dir = os.path.expanduser("~/colab-utils")
+# sys.path.append(os.path.join(utils_dir, "colab-common"))
+# sys.path.append(os.path.join(utils_dir, "colab-nlp"))
 
 # インポート確認
 from colab_common import describe_sqlite_tables
