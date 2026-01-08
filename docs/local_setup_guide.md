@@ -101,7 +101,59 @@ pip install sudachipy sudachidict_core
 
 ```
 
-### 3-3. パッケージ情報の保存と復元 (`requirements.txt`)
+### 3-3. パスの設定（自動読み込み）
+
+ダウンロードしたライブラリ（`~/colab-utils` 配下）を Python が自動的に認識できるように設定します。
+作業の前に、以下の2つの準備を行ってください。
+
+1. **仮想環境の有効化**:
+必ず仮想環境（`nlp-env` 等）を activate した状態で作業してください。
+```bash
+source ~/venvs/nlp-env/bin/activate
+
+```
+
+2. **シンボリックリンクの作成**:
+仮想環境の中からライブラリを参照できるように、リンクを作成します。
+```bash
+# 仮想環境のルートに 'colab-utils' へのリンクを作成
+ln -s ~/colab-utils $VIRTUAL_ENV/colab-utils
+
+```
+
+
+**設定コマンドの実行**
+準備ができたら、以下のコマンドをコピーし、ターミナルで実行してください。
+Python の検索パス設定ファイル（`.pth`）を自動作成します。
+
+```bash
+# 1. site-packages の場所を自動取得
+SITE_PKG=$(python3 -c "import site; print(site.getsitepackages()[0])")
+
+# 2. パス設定ファイルを作成
+#    ($VIRTUAL_ENV を使い、仮想環境からの相対位置でリンクします)
+echo "$VIRTUAL_ENV/colab-utils/colab-common" > "$SITE_PKG/local_dev_links.pth"
+
+# (オプション) 新しいリポジトリを追加する場合は以下のように追記します
+# echo "$VIRTUAL_ENV/colab-utils/new-repository" >> "$SITE_PKG/local_dev_links.pth"
+
+# 完了メッセージ
+echo "設定完了: $SITE_PKG/local_dev_links.pth"
+
+```
+
+この設定を行うことで、以降は `sys.path.append` などを書かずに直接 `import` できるようになります。
+
+**確認方法**
+エラーが出なければ設定完了です。以下のコマンドでインポートできるか試してみましょう。
+
+```bash
+python3 -c "import colab_common; print('Setup OK!')"
+
+```
+
+
+### 3-4. パッケージ情報の保存と復元 (`requirements.txt`)
 
 インストールしたライブラリの種類とバージョンを記録（フリーズ）しておくと、別の PC や将来の自分が同じ環境を再現できます。
 
@@ -122,7 +174,7 @@ pip install -r requirements.txt
 
 ```
 
-### 3-4. ライブラリの更新 (Maintenance)
+### 3-5. ライブラリの更新 (Maintenance)
 
 ライブラリは日々更新されます。時々以下の手順で最新版にアップデートすることを推奨します。
 
