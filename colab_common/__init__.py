@@ -5,6 +5,7 @@ from .gsheet_io import (
     get_gspread_client_colab,
     write_df_to_gsheet,
     read_df_from_gsheet,
+    cast_numeric_schema,
 )
 
 # ------------------------------------------------------------
@@ -19,4 +20,5 @@ __all__ = [
     "write_df_to_gsheet",
     "describe_sqlite_tables",
     "read_df_from_gsheet",
+    "cast_numeric_schema",
 ]
