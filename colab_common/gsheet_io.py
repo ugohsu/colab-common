@@ -132,9 +132,9 @@ def normalize_for_gsheet(
 def write_df_to_gsheet(
     df,
     sheet_url: str,
+    sheet_name: str = "temporary",
     *,
     gc: Any = None,
-    sheet_name: str = "temporary",
     clear_sheet: bool = True,
     include_index: bool = False,
     normalize: bool = True,
@@ -151,11 +151,11 @@ def write_df_to_gsheet(
         Series の場合は内部で DataFrame に変換して書き込みます（normalize=True 既定）。
     sheet_url:
         書き込み先スプレッドシートの URL（書き込み権限が必要）。
+    sheet_name:
+        書き込み先のシート名。既定は "temporary"。
     gc:
         認証済みの gspread クライアント。
         省略（None）の場合は、Colab 前提で自動的に認証して取得します（get_gspread_client_colab）。
-    sheet_name:
-        書き込み先のシート名。既定は "temporary"。
     clear_sheet:
         True の場合、書き込み前にシートを消去します（上書き用途向け）。
     include_index:
@@ -219,9 +219,9 @@ def _clean_columns_for_read(cols: Sequence[Any]) -> list[str]:
 
 def read_df_from_gsheet(
     sheet_url: str,
+    sheet_name: str = "シート1",
     *,
     gc: Any = None,
-    sheet_name: str = "シート1",
     header: Union[int, None] = 0,
     usecols: Optional[Sequence[Union[int, str]]] = None,
     nrows: Optional[int] = None,
@@ -239,10 +239,10 @@ def read_df_from_gsheet(
     ----------
     sheet_url:
         読み込み元スプレッドシートURL
-    gc:
-        認証済み gspread client。None なら Colab 認証してキャッシュ（write と同様）
     sheet_name:
         ワークシート名（既定 "シート1"）
+    gc:
+        認証済み gspread client。None なら Colab 認証してキャッシュ（write と同様）
     header:
         0: 先頭行をヘッダとして扱う / None: ヘッダなしで連番列名
     usecols:
