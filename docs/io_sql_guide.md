@@ -1,7 +1,9 @@
 # SQL ガイド（SQLite / SQL 実践編）
 
-本ドキュメントは、[`io_sql_basic.md`](./io_sql_basic.md) で紹介した SQLite / SQL の基礎を前提に、  
-**SQL を「道具として使う」ための主要構文を体系的に整理したガイド**です。
+> **💡 ヒント：対話的に SQL を試したい方へ**
+> 本ガイドのクエリを手軽に実行して結果を確認したい場合は、巻末の `10. 【発展】JupySQL による対話的実行` を先にセットアップすることをお勧めします。
+
+本ドキュメントは、[`io_sql_basic.md`](./io_sql_basic.md) で紹介した SQLite / SQL の基礎を前提に、**SQL を「道具として使う」ための主要構文を体系的に整理したガイド**です。
 
 ここでは、Google Colaboratory + SQLite 環境を想定し、
 データ分析や前処理で頻出する SQL 構文を中心にまとめます。
@@ -264,7 +266,63 @@ df = pd.read_sql(
 
 ---
 
-## 10. まとめ
+## 10. 【発展】JupySQL による対話的実行
+
+「コードを書かずに、SQL だけで素早くデータを確認したい」という場合には、**JupySQL** というライブラリが便利です。
+
+これを使うと、Colab のセルに直接 SQL を書いて実行できるようになります。
+
+### 10.1 インストールと準備
+
+```python
+# JupySQL のインストール
+!pip install jupysql
+
+# 拡張機能のロード
+%load_ext sql
+
+# SQLite データベースファイルへの接続
+%sql sqlite:///nlp_data.db
+
+```
+
+### 10.2 マジックコマンド（%%sql）
+
+セルの先頭に `%%sql` と書くことで、そのセル全体が SQL モードになります。
+`pandas.read_sql` を書く手間が省けるため、テーブル構造やデータの概観を掴むのに最適です。
+
+```sql
+%%sql
+SELECT * FROM tokens LIMIT 10;
+
+```
+
+### 10.3 SQL 結果を DataFrame として取得
+
+SQL で抽出した結果を、そのまま Python の変数（DataFrame）として受け取ることも可能です。
+`--save` オプションを使用します。
+
+```python
+%%sql --save df_result
+SELECT 
+    pos, 
+    COUNT(*) as count 
+FROM tokens 
+GROUP BY pos 
+ORDER BY count DESC;
+
+```
+
+```python
+# 通常の pandas DataFrame として利用可能
+print(df_result.head())
+df_result.plot.bar(x='pos', y='count')
+
+```
+
+---
+
+## 11. まとめ
 
 - SQL は **データを取り出すための道具**
 - 全構文を覚える必要はない
