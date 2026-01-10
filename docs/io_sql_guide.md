@@ -300,10 +300,9 @@ SELECT * FROM tokens LIMIT 10;
 ### 10.3 SQL 結果を DataFrame として取得
 
 SQL で抽出した結果を、そのまま Python の変数（DataFrame）として受け取ることも可能です。
-`--save` オプションを使用します。
 
 ```python
-%%sql --save df_result
+%%sql res_sql <<
 SELECT 
     pos, 
     COUNT(*) as count 
@@ -314,9 +313,11 @@ ORDER BY count DESC;
 ```
 
 ```python
+df = res_sql.DataFrame()
+
 # 通常の pandas DataFrame として利用可能
-print(df_result.head())
-df_result.plot.bar(x='pos', y='count')
+print(df.head())
+df.plot.bar(x='pos', y='count')
 
 ```
 
