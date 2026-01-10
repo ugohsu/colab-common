@@ -321,6 +321,43 @@ df.plot.bar(x='pos', y='count')
 
 ```
 
+ワンライナーで書くこともできます
+
+```python
+res_sql = %sql SELECT * FROM tokens LIMIT 10;
+df = res_sql.DataFrame()
+```
+
+### 10.4 `ATTACH DATABASE` でデータベースを統合
+
+```python
+%%sql
+-- 別のDBファイルを 'db2' という名前（エイリアス）で接続に追加
+ATTACH DATABASE '/content/drive/MyDrive/path/to/other_data.db' AS db2;
+```
+
+### 10.5 接続の確認・切り替え・切断
+
+```python
+# 新しいDBへ接続（これでアクティブな接続が切り替わります）
+%sql sqlite:////content/drive/MyDrive/path/to/second_db.db
+```
+
+```python
+# 接続リストを表示（現在アクティブなものに * がつきます）
+%sql --connections
+
+# 元のDBに戻る（接続文字列を指定）
+%sql sqlite:///nlp_data.db
+```
+
+```python
+# 指定した接続を切断
+# （接続時に使った文字列をそのまま指定します）
+%sql --close sqlite:///nlp_data.db
+```
+
+
 ---
 
 ## 11. まとめ

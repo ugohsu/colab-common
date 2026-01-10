@@ -50,6 +50,10 @@ SQLite は、**1つのファイルとして扱える軽量な RDBMS**です。
 
 Python では、`sqlite3` モジュールを使って SQLite を操作します。
 
+> **💡 ヒント：SQL を対話的に実行したい場合**
+> コードを書かずに `%sql` コマンドで直接データベースを操作したい場合は、
+> [`io_sql_guide.md`](./io_sql_guide.md) の「10. 【発展】JupySQL による対話的実行」を参照してください。
+
 ```python
 import sqlite3
 
@@ -124,16 +128,44 @@ describe_sqlite_tables(con)
 
 ---
 
-## 6. Google Colab での DataFrame 表示を改善する
+## 6. 高機能ビューアー D-Tale の活用
 
-Colab では、`data_table` を有効化すると検索・ソート可能なテーブルとして表示できます。
+**D-Tale** というライブラリを導入することで、Excel のような操作感でデータをブラウザ上で確認できます。
+
+### 6.1 インストールと設定
+
+Colab 上で動作させるには、インストール後に `USE_COLAB` フラグを有効にする必要があります。
 
 ```python
-from google.colab import data_table
-data_table.enable_dataframe_formatter()
+# ライブラリのインストール
+!pip install -q dtale
 
-display(df_all)
+import dtale
+import dtale.app
+
+# Colab で表示するための設定
+dtale.app.USE_COLAB = True
+
 ```
+
+### 6.2 データの表示
+
+読み込んだ DataFrame（`df_all`）を `dtale.show()` に渡すだけで起動します。
+
+```python
+# ビューアーの起動
+dtale.show(df_all)
+
+```
+
+実行すると、セル内にインタラクティブな表が表示されます。
+左上の「▶」ボタンメニューから、以下のような操作が可能です。
+
+* **Filter**: 特定の条件（例: `pos` が '名詞'）で絞り込み
+* **Sort**: 列の並べ替え
+* **Charts**: グラフの簡易作成
+
+大量のデータを SQL で取得した後の「検品」作業に最適です。
 
 ---
 
@@ -155,15 +187,6 @@ pandas だけでも多くの処理は可能ですが、
 
 ```python
 con.close()
-```
-
-### with 文の使用
-
-`con.close()` の実行忘れがしばしば生じるので、このリポジトリでは、以下のように `with` 文を使って SQL に接続することを基本としましょう。
-
-```python
-with sqlite3.connect("nlp_data.db") as con:
-    df = pd.read_sql("SELECT * FROM tokens", con)
 ```
 
 ## 9. まとめ
