@@ -195,6 +195,10 @@ def write_df_to_gsheet(
         df.to_frame(name=(df.name or "count")) if isinstance(df, pd.Series) else df
     )
 
+    # JSON 出力エラー回避 (NaN / Inf 対策)
+    # gspread (JSON) は NaN/Inf を扱えないため、空文字に置換する
+    df_out = df_out.replace([float("inf"), float("-inf")], pd.NA).fillna("")
+
     # 5) 書き込み
     set_with_dataframe(
         ws,
